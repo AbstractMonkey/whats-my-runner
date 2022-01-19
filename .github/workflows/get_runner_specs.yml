@@ -1,0 +1,60 @@
+name: get_runner_info
+
+on:
+  workflow_dispatch:
+    inputs:
+      runnerToCheck:
+        description: |
+          Desired runner environment to dump:
+        type: choice
+        required: true
+        options:
+        - ubuntu-latest
+        - ubuntu-20.04
+        - ubuntu-18.04
+#        - macos-11 (unworking)
+#        - macos-latest (unworking)
+#        - macos-10.15 (unworking)
+#        - windows-2022 (unworking)
+#        - windows-latest (unworking)
+#        - windows-2019 (unworking)
+#        - windows-2016 (unworking)
+
+jobs:      
+  investigate-debian:
+    if: contains(github.event.inputs.runnerToCheck, 'ubuntu')
+    runs-on: "${{ github.event.inputs.runnerToCheck }}" 
+    name: Get ${{ github.event.inputs.runnerToCheck }} Hardware and Software Env Info
+    outputs:
+      artifactName: ${{ steps.collect-runner-info.outputs.artifact_name }}
+    steps:
+      - uses: actions/checkout@v2   
+      - name: Get ${{ github.event.inputs.runnerToCheck }} Hardware and Software Env Info
+        id: collect-runner-info
+        run: |
+          echo "GitHub Job ID: $GITHUB_JOB" >  ${{ github.event.inputs.runnerToCheck }}.txt
+          echo "GitHub Action ID: $GITHUB_ACTION" >>  ${{ github.event.inputs.runnerToCheck }}.txt
+          echo "GitHub Run ID: $GITHUB_RUN_ID" >>  ${{ github.event.inputs.runnerToCheck }}.txt
+          echo "GitHub Actor's Username: $GITHUB_ACTOR" >>  ${{ github.event.inputs.runnerToCheck }}.txt
+          cat /etc/os-release >>  ${{ github.event.inputs.runnerToCheck }}.txt
+          date >>  ${{ github.event.inputs.runnerToCheck }}.txt
+          echo "Runner uptime:" >>  ${{ github.event.inputs.runnerToCheck }}.txt
+          uptime >>  ${{ github.event.inputs.runnerToCheck }}.txt
+          echo "Display who is online:" >>  ${{ github.event.inputs.runnerToCheck }}.txt
+          w >>  ${{ github.event.inputs.runnerToCheck }}.txt
+          echo "uname -a:" >>  ${{ github.event.inputs.runnerToCheck }}.txt
+          uname -a  >>  ${{ github.event.inputs.runnerToCheck }}.txt
+          echo "python Version:" >>  ${{ github.event.inputs.runnerToCheck }}.txt
+          python --version >>  ${{ github.event.inputs.runnerToCheck }}.txt
+          echo "python3 Version:" >>  ${{ github.event.inputs.runnerToCheck }}.txt
+          python3 --version >>  ${{ github.event.inputs.runnerToCheck }}.txt
+          bash --version >>  ${{ github.event.inputs.runnerToCheck }}.txt
+          lscpu >>  ${{ github.event.inputs.runnerToCheck }}.txt
+          dpkg-query -l >>  ${{ github.event.inputs.runnerToCheck }}.txt
+          lscpu >>  ${{ github.event.inputs.runnerToCheck }}.txt
+          lshw >>  ${{ github.event.inputs.runnerToCheck }}.txt
+      - name: Publish Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/${{ github.event.inputs.runnerToCheck }}.txt
+          name:  ${{ github.event.inputs.runnerToCheck }}-env-dump
