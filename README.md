@@ -1,5 +1,5 @@
 # What's my Runner?
-A flexible GitHub Action for quickly and easily dumping a runner's hardware and software specs.
+A GitHub Action for quickly and easily dumping a runner's hardware and software specs.
 
 ### Works on:
 * ubuntu-latest
